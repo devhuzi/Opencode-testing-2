@@ -13,7 +13,7 @@ socket.setdefaulttimeout(30)
 load_dotenv()
 
 SMTP_HOST = os.getenv("SMTP_HOST")
-SMTP_PORT = int(os.getenv("SMTP_PORT", 465))
+SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
 SMTP_USER = os.getenv("SMTP_USER")
 SMTP_PASS = os.getenv("SMTP_PASS")
 SMTP_FROM = os.getenv("SMTP_FROM", SMTP_USER)
@@ -28,7 +28,7 @@ def test_smtp_connection():
     if not SMTP_HOST:
         return "SMTP_HOST not configured"
     try:
-        sock = socket.create_connection((SMTP_HOST, SMTP_PORT), timeout=10)
+        sock = socket.create_connection((SMTP_HOST, 587), timeout=10)
         sock.close()
         return None
     except Exception as e:
