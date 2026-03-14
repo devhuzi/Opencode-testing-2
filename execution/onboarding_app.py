@@ -1,7 +1,10 @@
 import streamlit as st
-import subprocess
 import re
+import sys
 import os
+
+sys.path.insert(0, os.path.join(os.getcwd(), 'execution'))
+from send_onboarding_email import send_email
 
 st.set_page_config(page_title="One Step Sol - Onboarding", page_icon="🎉")
 
@@ -20,19 +23,7 @@ if submitted:
         st.error("Please enter a valid email address.")
     else:
         try:
-            result = subprocess.run(
-                ["python3", "execution/send_onboarding_email.py", name, email],
-                capture_output=True,
-                text=True,
-                env=os.environ.copy(),
-                cwd=os.getcwd(),
-                timeout=30
-            )
-            if result.returncode == 0:
-                st.success(f"Welcome email sent to {email}! 🎉")
-            else:
-                st.error(f"Failed: {result.stderr}")
-        except subprocess.TimeoutExpired:
-            st.error("Request timed out. Please try again.")
+            send_email(name, email)
+            st.success(f"Welcome email sent to {email}! 🎉")
         except Exception as e:
-            st.error(f"Error: {e}")
+            st.error(f"Failed: {str(e)}")
