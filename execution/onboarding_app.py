@@ -24,6 +24,7 @@ if submitted:
                 ["python3", "execution/send_onboarding_email.py", name, email],
                 capture_output=True,
                 text=True,
+                env=os.environ.copy(),
                 cwd=os.getcwd(),
                 timeout=30
             )
