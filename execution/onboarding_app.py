@@ -3,7 +3,7 @@ import re
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.getcwd(), 'execution'))
+sys.path.insert(0, '/app/execution')
 from send_onboarding_email import send_email
 
 st.set_page_config(page_title="One Step Sol - Onboarding", page_icon="🎉")
