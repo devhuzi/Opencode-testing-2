@@ -21,14 +21,17 @@ if submitted:
     else:
         try:
             result = subprocess.run(
-                ["python", "execution/send_onboarding_email.py", name, email],
+                ["python3", "execution/send_onboarding_email.py", name, email],
                 capture_output=True,
                 text=True,
-                cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                cwd=os.getcwd(),
+                timeout=30
             )
             if result.returncode == 0:
                 st.success(f"Welcome email sent to {email}! 🎉")
             else:
-                st.error(f"Failed to send email: {result.stderr}")
+                st.error(f"Failed: {result.stderr}")
+        except subprocess.TimeoutExpired:
+            st.error("Request timed out. Please try again.")
         except Exception as e:
             st.error(f"Error: {e}")
