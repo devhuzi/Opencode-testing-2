@@ -107,21 +107,33 @@ def send_email(name, email, max_retries=3):
     
     context = ssl.create_default_context()
     
-    for attempt in range(1, max_retries + 1):
-        try:
-            with smtplib.SMTP_SSL(str(SMTP_HOST), SMTP_PORT, context=context) as server:
-                server.login(str(SMTP_USER), str(SMTP_PASS))
-                server.sendmail(str(SMTP_FROM), email, msg.as_string())
-            return True
-        except smtplib.SMTPAuthenticationError:
-            raise Exception("SMTP authentication failed")
-        except Exception as e:
-            if attempt == max_retries:
-                raise Exception(f"SMTP connection failed after {max_retries} attempts: {str(e)}")
-            import time
-            time.sleep(2)
+    ports_to_try = [SMTP_PORT, 587, 465] if SMTP_PORT != 587 else [587, 465]
+    ports_to_try = list(dict.fromkeys(ports_to_try))
     
-    return False
+    last_error = None
+    for port in ports_to_try:
+        for attempt in range(1, max_retries + 1):
+            try:
+                if port == 587:
+                    with smtplib.SMTP(str(SMTP_HOST), port) as server:
+                        server.starttls(context=context)
+                        server.login(str(SMTP_USER), str(SMTP_PASS))
+                        server.sendmail(str(SMTP_FROM), email, msg.as_string())
+                else:
+                    with smtplib.SMTP_SSL(str(SMTP_HOST), port, context=context) as server:
+                        server.login(str(SMTP_USER), str(SMTP_PASS))
+                        server.sendmail(str(SMTP_FROM), email, msg.as_string())
+                return True
+            except smtplib.SMTPAuthenticationError:
+                raise Exception("SMTP authentication failed")
+            except Exception as e:
+                last_error = str(e)
+                if attempt == max_retries:
+                    continue
+                import time
+                time.sleep(2)
+    
+    raise Exception(f"SMTP connection failed: {last_error}")
 
 def main():
     if len(sys.argv) != 3:
