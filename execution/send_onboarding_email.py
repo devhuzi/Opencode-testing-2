@@ -3,9 +3,12 @@ import sys
 import smtplib
 import ssl
 import re
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+
+socket.setdefaulttimeout(30)
 
 load_dotenv()
 
@@ -20,6 +23,16 @@ EMAIL_SUBJECT = "Welcome to One Step Sol – Let's Get Started!"
 def validate_email(email):
     pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
     return re.match(pattern, email) is not None
+
+def test_smtp_connection():
+    if not SMTP_HOST:
+        return "SMTP_HOST not configured"
+    try:
+        sock = socket.create_connection((SMTP_HOST, SMTP_PORT), timeout=10)
+        sock.close()
+        return None
+    except Exception as e:
+        return str(e)
 
 def get_email_body(name):
     greeting = name if name.strip() else "Friend"

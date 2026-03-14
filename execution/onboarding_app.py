@@ -9,11 +9,19 @@ st.write("DEBUG: Starting app...")
 
 try:
     sys.path.insert(0, '/app/execution')
-    from send_onboarding_email import send_email
+    from send_onboarding_email import send_email, test_smtp_connection
     st.write("DEBUG: Import successful!")
+    
+    st.write("DEBUG: Testing SMTP connection...")
+    smtp_error = test_smtp_connection()
+    if smtp_error:
+        st.error(f"DEBUG - SMTP unreachable: {smtp_error}")
+    else:
+        st.write("DEBUG: SMTP connection OK!")
 except Exception as e:
     st.error(f"DEBUG - Import failed: {str(e)}")
     send_email = None
+    test_smtp_connection = None
 
 st.title("Welcome to One Step Sol!")
 st.write("Please fill in your details to get started.")
